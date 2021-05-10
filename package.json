@@ -1,0 +1,35 @@
+{
+  "name": "irtl",
+  "version": "0.0.1",
+  "description": "IR for RTL in JavaScript",
+  "author": "Aliaksei Chapyzhenka",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "homepage": "https://github.com/drom/irtl#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/drom/irtl.git"
+  },
+  "bugs": {
+    "url": "https://github.com/drom/irtl/issues"
+  },
+  "scripts": {
+    "test": "eslint lib && nyc -r=text -r=lcov mocha test"
+  },
+  "files": [
+    "lib"
+  ],
+  "devDependencies": {
+    "@drom/eslint-config": "^0.10.0",
+    "chai": "^4.3.4",
+    "eslint": "^7.24.0",
+    "mocha": "^8.3.2",
+    "nyc": "^15.1.0"
+  },
+  "eslintConfig": {
+    "extends": "@drom/eslint-config/eslint4/node8",
+    "parserOptions": {
+      "ecmaVersion": 2020
+    }
+  }
+}
