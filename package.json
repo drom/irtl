@@ -1,6 +1,6 @@
 {
   "name": "irtl",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "IR for RTL in JavaScript",
   "author": "Aliaksei Chapyzhenka",
   "license": "MIT",
