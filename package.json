@@ -14,7 +14,7 @@
     "url": "https://github.com/drom/irtl/issues"
   },
   "scripts": {
-    "test": "eslint lib && nyc -r=text -r=lcov mocha test"
+    "test": "eslint lib test && nyc -r=text -r=lcov mocha test"
   },
   "files": [
     "lib"
