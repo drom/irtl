@@ -57,7 +57,7 @@ const testo = {
       'reg         [15:0] tmp3;',
       'reg         [31:0] tmp4;',
       '// some more comment',
-      'assign out1 = (inp1 & tmp1 & tmp2)',
+      'assign out1 = (inp1 & tmp1 & tmp2);',
       'endmodule',
       ''
     ]

@@ -14,13 +14,18 @@
     "url": "https://github.com/drom/irtl/issues"
   },
   "scripts": {
-    "test": "eslint lib test && nyc -r=text -r=lcov mocha"
+    "test": "eslint lib test && nyc -r=text -r=lcov mocha",
+    "browserify": "browserify --standalone irtl lib/index.js > build/irtl.js",
+    "prepublish": "npm run test && mkdir -p build && npm run browserify"
   },
   "files": [
+    "build/irtl.js",
     "lib"
   ],
+  "unpkg": "build/irtl.js",
   "devDependencies": {
     "@drom/eslint-config": "^0.10.0",
+    "browserify": "^17.0.0",
     "chai": "^4.3.4",
     "eslint": "^7.24.0",
     "mocha": "^8.3.2",
