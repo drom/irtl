@@ -64,9 +64,9 @@ const testo = {
       '    reg    tmp3: UInt<16>, clk with: (reset => (rst, 0))',
       '    reg    tmp4: UInt<32>, clk with: (reset => (arst, 1))',
       '    ; body',
-      '    lit1 <= UInt(5)<3>',
+      '    lit1 <= UInt<3>(5)',
       '    out1 <= and(inp1, and(tmp1, and(tmp2, tmp2)))',
-      '    tmp8 <= xor(tmp3, or(tmp4, or(lit1, UInt(15)<4>)))',
+      '    tmp8 <= xor(tmp3, or(tmp4, or(lit1, UInt<4>(15))))',
       '    tmp3 <= out1',
       '    out2 <= cat(tmp1, cat(tmp1, cat(tmp1, cat(tmp1, tmp1))))'
     ],
