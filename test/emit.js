@@ -6,58 +6,93 @@ const lib = require('../lib/index.js');
 
 const expect = chai.expect;
 
-const $ = lib.elements;
+const {
+  input, output, wire,
+  and, xor, or,
+  buf,
+  repeat
+} = lib.elements;
 
-const bar = $.module('bar');
+const m = lib.createModule('bar');
 
-Object.assign(bar, {
-  defo: {
-    inp1: {width: 1,  dir: 'input'},
-    inp2: {width: 32, dir: 'input'},
-    out1: {width: 11, dir: 'output'},
-    tmp1: {width: 1},
-    tmp2: {width: 8,  clock: 'clk'},
-    tmp3: {width: 16, clock: 'clk', reset: 'rst', sync: true},
-    tmp4: {width: 32, clock: 'clk', reset: 'arst', resetValue: 1}
-  },
-  items: [
-    {type: 'comment', value: 'some more comment'},
-    {type: 'assign', dst: 'out1', src: {type: 'and', items: ['inp1', 'tmp1', 'tmp2']}}
-  ]
-});
+// m.inp0 = wire(); // {}
+m.clk  = input.Clock();        // {dir: 'input', type: 'Clock'}
+m.rst  = input(1);             // {dir: 'input', width: 1}
+m.arst = input.AsyncReset();   // {dir: 'input', type: 'AsyncReset'}
+
+m.inp1 = input(1); // {dir: 'input', width: 1}
+m.inp2 = input(32);
+m.out1 = output(11);
+
+m.tmp1 = wire(1);     // {width: 1}
+m.tmp2 = {width: 8,  clock: m.clk};
+m.tmp3 = {width: 16, clock: m.clk, reset: m.rst};
+m.tmp4 = {width: 32, clock: m.clk, reset: m.arst, resetValue: 1};
+
+m.lit1 = 5;
+// {type: 'comment', value: 'some more comment'},
+m.out1 = and(m.inp1, m.tmp1, m.tmp2, m.tmp2);
+m.tmp8 = xor(m.tmp3, or(m.tmp4, m.lit1, 15));
+m.tmp3 = buf(m.out1);
+m.out2 = repeat(m.tmp1, 5);
+
+console.log(m());
 
 const testo = {
   t1: {
     ir: (
-      {type: 'circuit', name: 'foo', items: [bar]}
+      {kind: 'circuit', __ID__: 'foo', items: [m()]}
     ),
     fir: [
       'circuit foo :',
       '  module bar :',
+      '    ; inputs',
+      '    input  clk: Clock',
+      '    input  rst: UInt<1>',
+      '    input  arst: AsyncReset',
       '    input  inp1: UInt<1>',
       '    input  inp2: UInt<32>',
+      '    ; outputs',
       '    output out1: UInt<11>',
+      '    ; wires',
       '    wire   tmp1: UInt<1>',
+      '    wire   lit1: UInt<3>',
+      '    wire   tmp8: UInt',
+      '    wire   out2: UInt',
+      '    ; regs',
       '    reg    tmp2: UInt<8>, clk',
       '    reg    tmp3: UInt<16>, clk with: (reset => (rst, 0))',
       '    reg    tmp4: UInt<32>, clk with: (reset => (arst, 1))',
-      '    ; some more comment',
-      '    out1 <= and(inp1, and(tmp1, tmp2))'
+      '    ; body',
+      '    lit1 <= UInt(5)<3>',
+      '    out1 <= and(inp1, and(tmp1, and(tmp2, tmp2)))',
+      '    tmp8 <= xor(tmp3, or(tmp4, or(lit1, UInt(15)<4>)))',
+      '    tmp3 <= out1',
+      '    out2 <= cat(tmp1, cat(tmp1, cat(tmp1, cat(tmp1, tmp1))))'
     ],
     verilog: [
       '// circuit foo',
       'module bar',
       '(',
+      '  input              clk,',
+      '  input              rst,',
+      '  input              arst,',
       '  input              inp1,',
       '  input       [31:0] inp2,',
       '  output      [10:0] out1',
       ');',
       'wire               tmp1;',
+      'wire         [2:0] lit1;',
+      'wire               tmp8;',
+      'wire               out2;',
       'reg          [7:0] tmp2;',
       'reg         [15:0] tmp3;',
       'reg         [31:0] tmp4;',
-      '// some more comment',
-      'assign out1 = (inp1 & tmp1 & tmp2);',
+      'assign lit1 = 3\'d5;',
+      'assign out1 = (inp1 & tmp1 & tmp2 & tmp2);',
+      'assign tmp8 = (tmp3 ^ (tmp4 | lit1 | 4\'d0));',
+      'always @(posedge clk or posedge rst) if (rst) tmp3 <= 16\'d0; else tmp3 <= out1;',
+      'assign out2 = {5{tmp1}};',
       'endmodule',
       ''
     ]
