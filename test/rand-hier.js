@@ -64,7 +64,7 @@ describe('rand hier', () => {
       makeSomeOps(mods, test.spec.numOps, mt);
       const mix = treeMix(nums, mods);
       const circt = lib.createCircuit('top_mod', mix);
-      const verilog = lib.emitVerilog(circt).join('\n');
+      const verilog = lib.emitVerilog(circt);
       console.log(verilog);
       done();
     });

@@ -14,8 +14,8 @@ const testo = {
       return [lib.createModule('top_mod')];
     },
     fir: (`\
-circuit top_mod :
-  module top_mod :
+circuit top_mod:
+  module top_mod:
 `
     ),
     verilog: (`\
@@ -50,14 +50,15 @@ endmodule
 `
     ),
     fir: (`\
-circuit top_mod :
-  module tb :
+circuit top_mod:
+  module tb:
     wire   clk: Clock
     inst u_top_mod of top_mod
-  module top_mod :
+    u_top_mod._tb_clk <= clk
+  module top_mod:
     input  _tb_clk: UInt
     wire   clock: UInt
-    clock <= clk
+    clock <= _tb_clk
 `
     )
   },
@@ -111,26 +112,29 @@ endmodule
 `
     ),
     fir: (`\
-circuit top_mod :
-  module tb :
+circuit top_mod:
+  module tb:
     wire   clock: Clock
     inst u_top of top
-  module top :
+    u_top._tb_clock <= clock
+  module top:
     input  _tb_clock: UInt
     inst u_foo of foo
+    u_foo._tb_clock <= _tb_clock
     inst u_bar of bar
-  module foo :
+    u_bar._tb_clock <= _tb_clock
+  module foo:
     input  _tb_clock: UInt
     wire   clock: UInt
     wire   b: UInt
     wire   c: UInt
     wire   a: UInt
-    clock <= clock
+    clock <= _tb_clock
     a <= and(b, c)
-  module bar :
+  module bar:
     input  _tb_clock: UInt
     wire   clock: UInt
-    clock <= clock
+    clock <= _tb_clock
 `
     )
   },
@@ -222,41 +226,48 @@ endmodule
 `
     ),
     fir: (`\
-circuit top_mod :
-  module r :
+circuit top_mod:
+  module r:
     inst u_a of a
-  module a :
+  module a:
     wire   _r_a_b_f_sig: UInt<7>
     inst u_b of b
+    _r_a_b_f_sig <= u_b._r_a_b_f_sig
     inst u_g of g
-  module b :
+    u_g._r_a_b_f_sig <= _r_a_b_f_sig
+  module b:
     output _r_a_b_f_sig: UInt<7>
     inst u_c of c
     inst u_d of d
+    u_d._r_a_b_f_sig <= _r_a_b_f_sig
     inst u_f of f
-  module c :
-  module d :
+    _r_a_b_f_sig <= u_f.sig
+  module c:
+  module d:
     input  _r_a_b_f_sig: UInt<7>
     inst u_e of e
-  module e :
+    u_e._r_a_b_f_sig <= _r_a_b_f_sig
+  module e:
     input  _r_a_b_f_sig: UInt<7>
     wire   foo: UInt
-    foo <= sig
-  module f :
+    foo <= _r_a_b_f_sig
+  module f:
     output sig: UInt<7>
     inst u_h of h
+    u_h._r_a_b_f_sig <= sig
     sig <= UInt<7>(100)
-  module h :
+  module h:
     input  _r_a_b_f_sig: UInt<7>
     inst u_i of i
-  module i :
+    u_i._r_a_b_f_sig <= _r_a_b_f_sig
+  module i:
     input  _r_a_b_f_sig: UInt<7>
     wire   baz: UInt
-    baz <= sig
-  module g :
+    baz <= _r_a_b_f_sig
+  module g:
     input  _r_a_b_f_sig: UInt<7>
     wire   bar: UInt
-    bar <= sig
+    bar <= _r_a_b_f_sig
 `
     )
   },
@@ -322,32 +333,34 @@ endmodule
 `
     ),
     fir: (`\
-circuit top_mod :
-  module r :
+circuit top_mod:
+  module r:
     inst u_a of a
-  module a :
+  module a:
     inst u_b of b
     inst u_g of g
-  module b :
+  module b:
     inst u_c of c
     inst u_d of d
     inst u_f of f
-  module c :
-  module d :
+  module c:
+  module d:
     inst u_e of e
-  module e :
-  module f :
+  module e:
+  module f:
     wire   sig: UInt<7>
     inst u_h of h
+    u_h._r_a_b_f_sig <= sig
     sig <= UInt<7>(100)
-  module h :
+  module h:
     input  _r_a_b_f_sig: UInt<7>
     inst u_i of i
-  module i :
+    u_i._r_a_b_f_sig <= _r_a_b_f_sig
+  module i:
     input  _r_a_b_f_sig: UInt<7>
     wire   baz: UInt
-    baz <= sig
-  module g :
+    baz <= _r_a_b_f_sig
+  module g:
 `
     )
   },
@@ -417,33 +430,36 @@ endmodule
 `
     ),
     fir: (`\
-circuit top_mod :
-  module r :
+circuit top_mod:
+  module r:
     inst u_a of a
-  module a :
+  module a:
     wire   _r_a_b_f_sig: UInt<7>
     inst u_b of b
+    _r_a_b_f_sig <= u_b._r_a_b_f_sig
     inst u_g of g
-  module b :
+    u_g._r_a_b_f_sig <= _r_a_b_f_sig
+  module b:
     output _r_a_b_f_sig: UInt<7>
     inst u_c of c
     inst u_d of d
     inst u_f of f
-  module c :
-  module d :
+    _r_a_b_f_sig <= u_f.sig
+  module c:
+  module d:
     inst u_e of e
-  module e :
-  module f :
+  module e:
+  module f:
     output sig: UInt<7>
     inst u_h of h
     sig <= UInt<7>(100)
-  module h :
+  module h:
     inst u_i of i
-  module i :
-  module g :
+  module i:
+  module g:
     input  _r_a_b_f_sig: UInt<7>
     wire   bar: UInt
-    bar <= sig
+    bar <= _r_a_b_f_sig
 `
     )
   }
@@ -455,7 +471,7 @@ Object.keys(testo).map(tName => {
     const circt = lib.createCircuit('top_mod', test.ir());
 
     it('fir', done => {
-      const fir = lib.emitFirrtl(circt).join('\n');
+      const fir = lib.emitFirrtl(circt);
       try {
         expect(fir).to.eq(test.fir);
       } catch (err) {
@@ -465,7 +481,7 @@ Object.keys(testo).map(tName => {
       done();
     });
     it('verilog', done => {
-      const verilog = lib.emitVerilog(circt).join('\n');
+      const verilog = lib.emitVerilog(circt);
       try {
         expect(verilog).to.eq(test.verilog);
       } catch (err) {

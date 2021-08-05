@@ -42,8 +42,8 @@ const testo = {
       return [m];
     },
     fir: (`\
-circuit top_mod :
-  module bar :
+circuit top_mod:
+  module bar:
     input  clk: Clock
     input  rst: UInt<1>
     input  arst: AsyncReset
@@ -97,7 +97,7 @@ Object.keys(testo).map(tName => {
   const circt = lib.createCircuit('top_mod', test.ir());
   describe(tName, () => {
     it('fir', done => {
-      const fir = lib.emitFirrtl(circt).join('\n');
+      const fir = lib.emitFirrtl(circt);
       try {
         expect(fir).to.eq(test.fir);
       } catch (err) {
@@ -107,7 +107,7 @@ Object.keys(testo).map(tName => {
       done();
     });
     it('verilog', done => {
-      const verilog = lib.emitVerilog(circt).join('\n');
+      const verilog = lib.emitVerilog(circt);
       try {
         expect(verilog).to.eq(test.verilog);
       } catch (err) {
