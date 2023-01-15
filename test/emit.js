@@ -62,6 +62,7 @@ circuit top_mod:
     tmp8 <= xor(tmp3, or(tmp4, or(lit1, UInt<4>(15))))
     tmp3 <= out1
     out2 <= cat(tmp1, cat(tmp1, cat(tmp1, cat(tmp1, tmp1))))
+
 `
     ),
     verilog: (`\

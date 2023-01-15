@@ -14,8 +14,7 @@
     "url": "https://github.com/drom/irtl/issues"
   },
   "scripts": {
-    "test": "eslint lib test",
-    "coverage": "eslint lib test && nyc -r=text -r=lcov mocha",
+    "test": "eslint lib test && nyc -r=text -r=lcov mocha test/emit.js",
     "browserify": "browserify --standalone irtl lib/index.js > build/irtl.js",
     "prepublish": "npm run test && mkdir -p build && npm run browserify"
   },
