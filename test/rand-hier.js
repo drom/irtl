@@ -1,11 +1,9 @@
 'use strict';
 
 const rnd = require('random-js');
-// const chai = require('chai');
+const {describe, it} = require('node:test');
 
 const lib = require('../lib/index.js');
-
-// const expect = chai.expect;
 
 const { and } = lib.elements;
 
@@ -55,8 +53,8 @@ const testo = {
 
 
 describe('rand hier', () => {
-  Object.keys(testo).map(tName => {
-    it(tName, done => {
+  Object.keys(testo).forEach(tName => {
+    it(tName, () => {
       const test = testo[tName];
       const mt = rnd.MersenneTwister19937.seed(test.spec.seed);
       const nums = pRandSeq(test.spec.numMods, mt);
@@ -64,11 +62,8 @@ describe('rand hier', () => {
       makeSomeOps(mods, test.spec.numOps, mt);
       const mix = treeMix(nums, mods);
       const circt = lib.createCircuit('top_mod', mix);
-      const verilog = lib.emitVerilog(circt);
-      console.log(verilog);
-      done();
+      // smoke test: emit must not throw
+      lib.emitVerilog(circt);
     });
   });
 });
-
-/* eslint-env mocha */
