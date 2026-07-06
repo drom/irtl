@@ -31,8 +31,5 @@
     "eslint": "^9.34.0",
     "globals": "^16.3.0",
     "random-js": "^2.1.0"
-  },
-  "allowScripts": {
-    "esbuild@0.25.12": true
   }
 }
