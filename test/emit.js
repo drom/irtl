@@ -1,10 +1,9 @@
 'use strict';
 
-const chai = require('chai');
+const {describe, it} = require('node:test');
+const assert = require('node:assert');
 
 const lib = require('../lib/index.js');
-
-const expect = chai.expect;
 
 const {
   input, output, wire,
@@ -62,7 +61,6 @@ circuit top_mod:
     tmp8 <= xor(tmp3, or(tmp4, or(lit1, UInt<4>(15))))
     tmp3 <= out1
     out2 <= cat(tmp1, cat(tmp1, cat(tmp1, cat(tmp1, tmp1))))
-
 `
     ),
     verilog: (`\
@@ -84,7 +82,7 @@ reg         [15:0] tmp3;
 reg         [31:0] tmp4;
 assign lit1 = 3'd5;
 assign out1 = (inp1 & tmp1 & tmp2 & tmp2);
-assign tmp8 = (tmp3 ^ (tmp4 | lit1 | 4'd0));
+assign tmp8 = (tmp3 ^ (tmp4 | lit1 | 4'd15));
 always @(posedge clk or posedge rst) if (rst) tmp3 <= 16'd0; else tmp3 <= out1;
 assign out2 = {5{tmp1}};
 endmodule
@@ -93,31 +91,15 @@ endmodule
   }
 };
 
-Object.keys(testo).map(tName => {
+Object.keys(testo).forEach(tName => {
   const test = testo[tName];
   const circt = lib.createCircuit('top_mod', test.ir());
   describe(tName, () => {
-    it('fir', done => {
-      const fir = lib.emitFirrtl(circt);
-      try {
-        expect(fir).to.eq(test.fir);
-      } catch (err) {
-        console.log(fir);
-        throw err;
-      }
-      done();
+    it('fir', () => {
+      assert.equal(lib.emitFirrtl(circt), test.fir);
     });
-    it('verilog', done => {
-      const verilog = lib.emitVerilog(circt);
-      try {
-        expect(verilog).to.eq(test.verilog);
-      } catch (err) {
-        console.log(verilog);
-        throw err;
-      }
-      done();
+    it('verilog', () => {
+      assert.equal(lib.emitVerilog(circt), test.verilog);
     });
   });
 });
-
-/* eslint-env mocha */

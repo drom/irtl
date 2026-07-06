@@ -1,10 +1,9 @@
 'use strict';
 
-const chai = require('chai');
+const {describe, it} = require('node:test');
+const assert = require('node:assert');
 
 const lib = require('../lib/index.js');
-
-const expect = chai.expect;
 
 const { buf, and } = lib.elements;
 
@@ -465,32 +464,16 @@ circuit top_mod:
   }
 };
 
-Object.keys(testo).map(tName => {
+Object.keys(testo).forEach(tName => {
   describe(tName, () => {
     const test = testo[tName];
     const circt = lib.createCircuit('top_mod', test.ir());
 
-    it('fir', done => {
-      const fir = lib.emitFirrtl(circt);
-      try {
-        expect(fir).to.eq(test.fir);
-      } catch (err) {
-        console.log(fir);
-        throw err;
-      }
-      done();
+    it('fir', () => {
+      assert.equal(lib.emitFirrtl(circt), test.fir);
     });
-    it('verilog', done => {
-      const verilog = lib.emitVerilog(circt);
-      try {
-        expect(verilog).to.eq(test.verilog);
-      } catch (err) {
-        console.log(verilog);
-        throw err;
-      }
-      done();
+    it('verilog', () => {
+      assert.equal(lib.emitVerilog(circt), test.verilog);
     });
   });
 });
-
-/* eslint-env mocha */
