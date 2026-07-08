@@ -17,7 +17,7 @@
     "lint": "eslint lib test",
     "coverage": "node -e \"require('fs').mkdirSync('coverage',{recursive:true})\" && node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=coverage/lcov.info",
     "test": "eslint lib test && npm run coverage",
-    "bundle": "node -e \"require('fs').mkdirSync('build',{recursive:true})\" && esbuild lib/index.js --bundle --format=iife --global-name=irtl --outfile=build/irtl.js",
+    "bundle": "node bundle.js",
     "prepack": "npm run test && npm run bundle"
   },
   "files": [
