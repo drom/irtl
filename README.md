@@ -87,7 +87,7 @@ reg         [15:0] tmp3;
 reg         [31:0] tmp4;
 assign lit1 = 3'd5;
 assign out1 = (inp1 & tmp1 & tmp2 & tmp2);
-assign tmp8 = (tmp3 ^ (tmp4 | lit1 | 4'd0));
+assign tmp8 = (tmp3 ^ (tmp4 | lit1 | 4'd15));
 always @(posedge clk or posedge rst) if (rst) tmp3 <= 16'd0; else tmp3 <= out1;
 assign out2 = {5{tmp1}};
 endmodule
@@ -184,13 +184,15 @@ and a set of variadic operation builders. Each operation returns a plain node
 `{op, items: [...]}` that nests freely:
 
 ```
-asUInt asSInt cvt neg not andr orr xorr
+asUInt asSInt asClock asAsyncReset asReset cvt neg not
+andr orr xorr nandr norr xnorr
+land lor lnot
 bits tail head pad
 add sub mul div rem
 lt leq gt geq eq neq
 shl shr dshl dshr
-and or xor cat
-mux validif
+and or xor xnor cat
+mux
 assert assume cover
 repeat buf
 ```
@@ -198,6 +200,32 @@ repeat buf
 Variadic ops fold right: `and(a, b, c)` emits as `and(a, and(b, c))` in FIRRTL
 and `(a & b & c)` in Verilog. `irtl.variadics` re-exports the binary/arithmetic
 subset for convenience.
+
+#### Verilog operator mapping
+
+Each op lowers to native Verilog rather than a function call:
+
+| Category | Ops | Verilog |
+| --- | --- | --- |
+| arithmetic | `add sub mul div rem` | `+ - * / %` |
+| comparison | `lt leq gt geq eq neq` | `< <= > >= == !=` |
+| bitwise | `and or xor xnor` | `& \| ^ ~^` |
+| logical | `land lor lnot` | `&& \|\| !` |
+| reduction | `andr orr xorr nandr norr xnorr` | `&(x) \|(x) ^(x) ~&(x) ~\|(x) ~^(x)` |
+| unary | `not neg` | `~(x) -(x)` |
+| shift | `shl shr dshl dshr` | `<< >>` (`>>>` when operand is `signed`) |
+| casts | `asUInt asSInt cvt` | `$unsigned(x)` / `$signed(x)` |
+| select / slice | `mux bits head tail pad cat repeat` | `? :`, part-select, replicate, concat |
+
+**Signed right shift.** `shr`/`dshr` emit an arithmetic shift `($signed(x) >>> n)`
+when the operand carries `signed: true`, otherwise a logical `>>`. FIRRTL infers
+this from the `SInt`/`UInt` type, so its output is unchanged.
+
+**Ops without a FIRRTL primop.** `xnor`, `land`, `lor`, `lnot`, and the
+`nandr`/`norr`/`xnorr` reductions have no direct FIRRTL primop, so the FIRRTL
+emitter lowers them to an equivalent primop tree — e.g. `xnor(a, b)` →
+`not(xor(a, b))`, `land(a, b)` → `and(orr(a), orr(b))`, `lnot(x)` → `not(orr(x))`.
+The Verilog emitter throws on any unrecognized op rather than emitting garbage.
 
 ### Circuits, hierarchy, and plumbing
 
